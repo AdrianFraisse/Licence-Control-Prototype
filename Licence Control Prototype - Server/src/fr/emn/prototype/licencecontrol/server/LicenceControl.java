@@ -19,8 +19,14 @@ public class LicenceControl {
 	@Path("check")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String check(@QueryParam("query") String query) {
-		System.out.println("check query=" + query);
-		return "token, query = " + query;
+		String[] data = query.split(";");
+		
+		if (checkData(data[1], data[0])) {
+			// returns the token
+			return data[2];
+		}
+		
+		return "0";
 	}
 	
 	private boolean checkData(String licence, String checksum) {
