@@ -30,5 +30,11 @@ public class Test {
 		} catch (SQLException e) {
 			System.err.println("Echec de la requete check licence ko");
 		}
+		try {
+			System.out.println(dao.getNbMaxUsers("licence-proto")); //2		
+			
+		} catch (SQLException e) {
+			System.err.println("Echec de la requete getNbMaxUsers");
+		}
 	}
 }
