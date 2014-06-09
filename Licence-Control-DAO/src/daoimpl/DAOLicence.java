@@ -2,6 +2,7 @@ package daoimpl;
 
 import java.sql.*;
 
+import connection.ConnectionMySql;
 import daointerface.DAO;
 
 public class DAOLicence implements DAO {
@@ -10,22 +11,7 @@ public class DAOLicence implements DAO {
 	private Connection cnx;
 
 	private DAOLicence() {
-		String url = "jdbc:mysql://localhost/";
-		String dbName = "licencedb";
-		String username = "root";
-		String password = "";
-		
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			cnx = DriverManager.getConnection(url+dbName, username, password);
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		cnx = ConnectionMySql.getConnection();
 	}
 
 	public static DAOLicence instance() {
