@@ -9,13 +9,13 @@ public class Test {
 	public static void main(String[] args) {
 		DAOLicence dao = DAOLicence.instance();
 		try {
-			System.out.println(dao.checkLicence("LICENCE")); //true			
+			System.out.println(dao.checkLicence("licence-proto")); //true			
 			
 		} catch (SQLException e) {
 			System.err.println("Echec de la requete check licence ok");
 		}
 		try {
-			System.out.println(dao.getChecksum("LICENCE")); //GYDFDGDGYUTSYUGDSUYGDYUSGYEGTSFA
+			System.out.println(dao.getChecksum("licence-proto")); //40d869c6cac79f45dc866393ccd101fe43601d10cd7da4699b832f08b8ee3423
 		} catch (SQLException e) {
 			System.err.println("Echec de la requete checksum existant");
 		}
@@ -29,6 +29,12 @@ public class Test {
 			
 		} catch (SQLException e) {
 			System.err.println("Echec de la requete check licence ko");
+		}
+		try {
+			System.out.println(dao.getNbMaxUsers("licence-proto")); //2		
+			
+		} catch (SQLException e) {
+			System.err.println("Echec de la requete getNbMaxUsers");
 		}
 	}
 }

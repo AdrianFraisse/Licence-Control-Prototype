@@ -66,4 +66,18 @@ public class DAOLicence implements DAO {
 		cnx.close();
 		super.finalize();
 	}
+
+	@Override
+	public int getNbMaxUsers(String licence) throws SQLException {
+		String sql = "SELECT `nb_users_max` FROM `licences` WHERE `licence` = ?";
+		PreparedStatement statement = cnx.prepareStatement(sql);
+		statement.setString(1, licence);
+		ResultSet rs = statement.executeQuery();
+		int nbUsersMax = 0;
+		if(rs.first()) {
+			nbUsersMax = rs.getInt("nb_users_max");
+		}
+		rs.close();
+		return nbUsersMax;
+	}
 }

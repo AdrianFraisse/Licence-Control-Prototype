@@ -25,5 +25,6 @@
 	<classpathentry kind="lib" path="lib/validation-api-1.1.0.Final.jar"/>
 	<classpathentry kind="lib" path="lib/grizzly-http-servlet-server-2.3.13.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-container-grizzly2-http-2.9.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Licence-Control-DAO"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
