@@ -8,6 +8,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -16,11 +19,39 @@ import java.security.SecureRandom;
 public class LicenceControler {
 	// Singleton
 	private static LicenceControler licenceControler = new LicenceControler();
+	private final String token;
 	
-	private LicenceControler() {}
+	private LicenceControler() {
+		token = generateToken();
+	}
 	
 	public static LicenceControler getInstance() {
 		return licenceControler;
+	}
+	
+	public void controlOnServer() throws MalformedURLException, RuntimeException, IOException {
+		BufferedReader rd  = null;
+		StringBuilder sb = null;
+		String line = null;
+		URL url = new URL("http://localhost:8080/rest/licence/check?query="+getData());
+		HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+		httpCon.setDoOutput(true);
+		httpCon.setRequestMethod("GET");
+		httpCon.setReadTimeout(10000);
+		httpCon.connect();
+		rd  = new BufferedReader(new InputStreamReader(httpCon.getInputStream()));
+        sb = new StringBuilder();
+      
+        while ((line = rd.readLine()) != null)
+        {
+            sb.append(line);
+        }
+        
+        if (sb.toString().equals(token+"\n")) System.out.println("Contrôle OK");
+        else {
+        	System.out.println(sb.toString());
+        }
+        rd.close();
 	}
 	
 	public String getData() throws RuntimeException, IOException {
