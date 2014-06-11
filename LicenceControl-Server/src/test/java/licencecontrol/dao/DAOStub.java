@@ -24,5 +24,11 @@ public class DAOStub implements DAO {
 			throws DAOException {
 		return true;
 	}
+	
+	@Override
+	public int getNbActiveSessions(String licence) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 }

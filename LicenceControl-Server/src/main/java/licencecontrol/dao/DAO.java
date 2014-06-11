@@ -16,4 +16,6 @@ public interface DAO {
 	 */
 	public boolean insertTemporaryKey(String licence, String key, Timestamp timestamp) throws DAOException;
 	
+	int getNbActiveSessions(String licence);
+	
 }

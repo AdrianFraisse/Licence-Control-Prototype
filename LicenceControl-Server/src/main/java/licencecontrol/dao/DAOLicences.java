@@ -102,4 +102,10 @@ public class DAOLicences implements DAO {
 		}
 		return false;
 	}
+
+	@Override
+	public int getNbActiveSessions(String licence) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
