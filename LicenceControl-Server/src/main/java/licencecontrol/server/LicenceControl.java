@@ -14,7 +14,9 @@ import licencecontrol.util.Utils;
 
 @Path("/licence")
 public class LicenceControl {
-
+	
+	private static final String SERVER_ERROR = "0";
+	private static final String DAO_ERROR = "1";
 	/**
 	 * Réceptionne une requète de première validation de licence 
 	 * (Ouverture d'une session)
@@ -27,17 +29,18 @@ public class LicenceControl {
 	public String check(@QueryParam("query") String query) {
 		String[] data = query.split(";");
 		// Rejet d'une requète présentant un format erronné
+		final String response = data[2] + ";";
 		try {
 			if (data.length == 3 && checkData(data)) {
 				// Premier contrôle : reponse == token et une clé temporaire
-				final String response = data[2] + ";" + registerClient(data);
-				return response;
+				return response.concat(registerClient(data));
 			} else {
-				return "0";
+				// TODO reponse refus
+				return SERVER_ERROR;
 			}
 		} catch (DAOException e) {
 			e.printStackTrace();
-			return "X";
+			return DAO_ERROR;
 		}
 	}
 	
@@ -72,7 +75,7 @@ public class LicenceControl {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String revalidate(@QueryParam("query") String query) {
 		String[] data = query.split(";");
-		if (data.length == 3) {
+		if (data.length == 4) {
 			
 			return "0";
 		} else {
