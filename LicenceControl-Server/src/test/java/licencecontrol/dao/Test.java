@@ -3,7 +3,7 @@ package licencecontrol.dao;
 public class Test {
 
 	public static void main(String[] args) {
-		DAO dao = new DAOImpl();
+		DAO dao = new DAOLicences();
 		try {
 			System.out.println(dao.validateLicence("licence-proto")); //true			
 			

@@ -4,7 +4,7 @@ import java.sql.*;
 
 import licencecontrol.db.ConnectionMySql;
 
-public class DAOImpl implements DAO {
+public class DAOLicences implements DAO {
 	
 	private static final String QUERY_VALIDATE_LIC = "SELECT COUNT(licence) as nb FROM `licences` WHERE `licence`= ?";
 	private static final String QUERY_CHECKSUM = "SELECT `build_checksum` FROM builds b, licences l WHERE l.id_build = b.id_build AND l.licence = ?";
@@ -13,7 +13,7 @@ public class DAOImpl implements DAO {
 	//private static DAOLicence instance;
 	private Connection connection;
 
-	public DAOImpl() {
+	public DAOLicences() {
 		connection = ConnectionMySql.getConnection();
 	}
 

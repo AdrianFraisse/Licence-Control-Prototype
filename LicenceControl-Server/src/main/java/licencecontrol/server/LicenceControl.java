@@ -8,7 +8,7 @@ import javax.ws.rs.core.MediaType;
 
 import licencecontrol.dao.DAO;
 import licencecontrol.dao.DAOException;
-import licencecontrol.dao.DAOImpl;
+import licencecontrol.dao.DAOLicences;
 
 
 @Path("/licence")
@@ -29,7 +29,7 @@ public class LicenceControl {
 	}
 	
 	private boolean validateData(String licence, String checksum) {
-		DAO dao = new DAOImpl();
+		DAO dao = new DAOLicences();
 		try {
 			return dao.validateLicence(licence) && dao.getChecksum(licence).equals(checksum);
 		} catch (DAOException e) {
