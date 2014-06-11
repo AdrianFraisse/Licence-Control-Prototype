@@ -9,6 +9,7 @@ public class DAOLicences implements DAO {
 	private static final String QUERY_VALIDATE_LIC = "SELECT COUNT(licence) as nb FROM `licences` WHERE `licence`= ?";
 	private static final String QUERY_CHECKSUM = "SELECT `build_checksum` FROM builds b, licences l WHERE l.id_build = b.id_build AND l.licence = ?";
 	private static final String QUERY_NB_MAX_USERS = "SELECT `nb_users_max` FROM `licences` WHERE `licence` = ?";
+	private static final String QUERY_INSERT_TEMPORARY_KEY = "INSERT INTO `session` (`licence`, `session_key`, `expiration_date`) VALUES (?, ?, ?);";
 
 	//private static DAOLicence instance;
 	private Connection connection;
@@ -82,5 +83,23 @@ public class DAOLicences implements DAO {
 		} catch (SQLException e) {
 			throw new DAOException(e.getMessage());
 		}
+	}
+
+	@Override
+	public boolean insertTemporaryKey(String licence, String key, Timestamp timestamp)
+			throws DAOException {
+		try {
+			PreparedStatement statement = connection.prepareStatement(QUERY_INSERT_TEMPORARY_KEY);
+			statement.setString(1, licence);
+			statement.setString(2, key);
+			statement.setObject(3, timestamp);
+			int rowAffected = statement.executeUpdate();
+			if(rowAffected == 1) {
+				return true;
+			}
+		} catch (SQLException e) {
+			throw new DAOException(e.getMessage());
+		}
+		return false;
 	}
 }

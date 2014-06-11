@@ -1,5 +1,9 @@
 package licencecontrol.dao;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+
+
 public class Test {
 
 	public static void main(String[] args) {
@@ -31,6 +35,15 @@ public class Test {
 			
 		} catch (DAOException e) {
 			System.err.println("Echec de la requete getNbMaxUsers");
+		}
+		try {
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis()+(1000*60*60));
+			Date date = new Date(1402508820);
+			boolean ok = dao.insertTemporaryKey("licence-proto", "yahhci6yyahhci6yyahhci6yyahhci6y", timestamp);
+			System.out.println(ok); //true		
+			
+		} catch (DAOException e) {
+			System.err.println("Echec de la requete InsertTemporaryKey " + e.getMessage());
 		}
 	}
 }

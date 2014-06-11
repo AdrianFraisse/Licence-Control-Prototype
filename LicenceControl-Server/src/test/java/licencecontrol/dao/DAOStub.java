@@ -1,5 +1,7 @@
 package licencecontrol.dao;
 
+import java.sql.Timestamp;
+
 public class DAOStub implements DAO {
 
 	@Override
@@ -15,6 +17,12 @@ public class DAOStub implements DAO {
 	@Override
 	public int getNbMaxUsers(String licence) throws DAOException {
 		return 5;
+	}
+
+	@Override
+	public boolean insertTemporaryKey(String licence, String key, Timestamp timestamp)
+			throws DAOException {
+		return true;
 	}
 
 }
