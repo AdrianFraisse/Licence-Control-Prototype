@@ -1,5 +1,7 @@
 package licencecontrol.dao;
 
+import java.util.Date;
+
 public class DAOStub implements DAO {
 
 	@Override
@@ -15,6 +17,18 @@ public class DAOStub implements DAO {
 	@Override
 	public int getNbMaxUsers(String licence) throws DAOException {
 		return 5;
+	}
+
+	@Override
+	public boolean insertTemporaryKey(String licence, String tempKey, Date date) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int getNbActiveSessions(String licence) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

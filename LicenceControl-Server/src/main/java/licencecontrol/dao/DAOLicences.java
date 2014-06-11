@@ -1,6 +1,7 @@
 package licencecontrol.dao;
 
 import java.sql.*;
+import java.util.Date;
 
 import licencecontrol.db.ConnectionMySql;
 
@@ -82,5 +83,17 @@ public class DAOLicences implements DAO {
 		} catch (SQLException e) {
 			throw new DAOException(e.getMessage());
 		}
+	}
+
+	@Override
+	public boolean insertTemporaryKey(String licence, String tempKey, Date date) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int getNbActiveSessions(String licence) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }
