@@ -38,7 +38,7 @@ public class DAOImpl implements DAO {
 			rs.close();
 			return result > 0;
 		} catch (SQLException e) {
-			throw new DAOException();
+			throw new DAOException(e.getMessage());
 		}
 	}
 
@@ -56,7 +56,7 @@ public class DAOImpl implements DAO {
 			rs.close();
 			return checksum;
 		} catch (SQLException e) {
-			throw new DAOException();
+			throw new DAOException(e.getMessage());
 		}
 	}
 	
@@ -80,7 +80,7 @@ public class DAOImpl implements DAO {
 			rs.close();
 			return nbUsersMax;
 		} catch (SQLException e) {
-			throw new DAOException();
+			throw new DAOException(e.getMessage());
 		}
 	}
 }
