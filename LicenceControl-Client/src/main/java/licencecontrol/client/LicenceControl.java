@@ -78,27 +78,39 @@ public class LicenceControl {
         		// la réponse contient donc forcément une clé temporaire
         		final String tempKey = response[1];
         		writeTempKey(tempKey);
+        		System.out.println("OK ! Clé temporaire : " + tempKey);
         	}
         	
         } else if (response.length == 1) {
         	// Réponse en erreur ou en rejet
         	int error = Integer.valueOf(response[0]);
         	switch (error) {
-        	case 0 : System.err.println("CHOCO -> Erreur du serveur de contrôle de licence");
-        	case 1 : System.err.println("CHOCO -> Erreur de la base de donnéees des licences");
-        	case 2 : System.err.println("CHOCO -> Contrôle de licence refusé");
-        	case 3 : System.err.println("CHOCO -> Nombre maximum d'utilisateurs atteint");
-        	case 4 : System.out.println("CHOCO -> Session libérée");
+        	case 0 : {
+        		System.err.println("CHOCO -> Erreur du serveur de contrôle de licence");
+        		break;
+        	}
+        	case 1 : {
+        		System.err.println("CHOCO -> Erreur de la base de donnéees des licences");
+        		break;
+        	}
+        	case 2 : {
+        		System.err.println("CHOCO -> Contrôle de licence refusé");
+        		break;
+        	}
+        	case 3 : {
+        		System.err.println("CHOCO -> Nombre maximum d'utilisateurs atteint");
+        		break;
+        	}
+        	case 4 : {
+        		System.out.println("CHOCO -> Session libérée");
+        		break;
+        	}
         	default : System.err.println("CHOCO -> Erreur inconnue");
         	}
         	System.exit(0);
         } else {
         	System.err.println("Réponse invalide du serveur");
         	System.exit(0);
-        }
-        if (sb.toString().equals(token+"\n")) System.out.println("Contrôle OK");
-        else {
-        	System.out.println(sb.toString());
         }
         rd.close();
 	}
