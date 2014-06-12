@@ -1,6 +1,5 @@
 package licencecontrol.dao;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 
 
@@ -39,7 +38,6 @@ public class Test {
 		}
 		try {
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis()+(1000*60*60));
-			Date date = new Date(1402508820);
 			boolean ok = dao.insertTemporaryKey(licence, "key_to_delete", timestamp);
 			System.out.println(ok); //true		
 			
@@ -59,6 +57,36 @@ public class Test {
 			
 		} catch (DAOException e) {
 			System.err.println("Echec de la requete deleteSession " + e.getMessage());
+		}
+		try {
+			// on ajoute une clé active
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis()+(1000*60*60));
+			dao.insertTemporaryKey(licence, "key_test_session_state", timestamp);
+			
+			SessionState state = dao.sessionExists("key_test_session_state", licence);
+			System.out.println(state); //Active
+			//on supprime
+			dao.deleteSession("key_test_session_state", licence);
+		} catch (DAOException e) {
+			System.err.println("Echec de la requete SessionState ACTIVE" + e.getMessage());
+		}
+		try {
+			// on ajoute une clé expirée
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis()-(1000*60*60));
+			dao.insertTemporaryKey(licence, "key_test_session_state", timestamp);
+			
+			SessionState state = dao.sessionExists("key_test_session_state", licence);
+			System.out.println(state); //Expired
+			//on supprime
+			dao.deleteSession("key_test_session_state", licence);
+		} catch (DAOException e) {
+			System.err.println("Echec de la requete SessionState EXPIRED" + e.getMessage());
+		}
+		try {
+			SessionState state = dao.sessionExists("foo_key", licence);
+			System.out.println(state); //Null
+		} catch (DAOException e) {
+			System.err.println("Echec de la requete SessionState NULL" + e.getMessage());
 		}
 	}
 }

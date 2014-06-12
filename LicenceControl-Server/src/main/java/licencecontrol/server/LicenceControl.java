@@ -9,6 +9,7 @@ import javax.ws.rs.core.MediaType;
 import licencecontrol.dao.DAO;
 import licencecontrol.dao.DAOException;
 import licencecontrol.dao.DAOLicences;
+import licencecontrol.dao.SessionState;
 import licencecontrol.util.Utils;
 
 
@@ -106,7 +107,7 @@ public class LicenceControl {
 		final String temporaryKey = Utils.generateTemporaryKey();
 		DAO dao = new DAOLicences();
 		try {
-			if (dao.sessionExists(licence, oldKey) == 0) {
+			if (dao.sessionExists(licence, oldKey) == SessionState.EXPIRED) {
 				dao.deleteSession(licence, oldKey);
 				dao.insertTemporaryKey(licence, temporaryKey, Utils.generateExpirationDate());
 				return temporaryKey;

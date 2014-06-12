@@ -39,10 +39,10 @@ public class DAOStub implements DAO {
 	}
 
 	@Override
-	public int sessionExists(String licence, String tempKey)
+	public SessionState sessionExists(String licence, String tempKey)
 			throws DAOException {
 		// TODO Auto-generated method stub
-		return 0;
+		return SessionState.NULL;
 	}
 
 }
