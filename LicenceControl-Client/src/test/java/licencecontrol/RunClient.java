@@ -9,6 +9,9 @@ public class RunClient {
 
 	public static void main(String[] args) throws MalformedURLException, RuntimeException, IOException {
 		LicenceControl.getInstance().controlOnServer();
+		System.in.read();
+		LicenceControl.getInstance().controlOnServer();
+		System.in.read();
 	}
 
 }

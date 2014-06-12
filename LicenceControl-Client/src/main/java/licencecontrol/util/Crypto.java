@@ -29,7 +29,13 @@ public class Crypto {
 			+ "918044067836880017335988323102076667084246331279411905713497072245788275144458755"
 			+ "958130110434053591673559");
 	private static final BigInteger PUB_KEY_EXPONENT = new BigInteger("65537");
-
+	
+	/**
+	 * 
+	 * @return Une clé public de chiffrement RSA
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeySpecException
+	 */
 	public static PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
 		RSAPublicKeySpec spec = new RSAPublicKeySpec(PUB_KEY_MODULUS, PUB_KEY_EXPONENT);
 		KeyFactory factory = KeyFactory.getInstance(CRYPTO_ALGO);
@@ -43,7 +49,6 @@ public class Crypto {
 		Cipher cipher = Cipher.getInstance(CRYPTO_ALGO);
 		cipher.init(Cipher.ENCRYPT_MODE, key);
 		byte[] encryptedData = cipher.doFinal(dataToEncrypt);
-		System.out.println("Encrypted Data: " + DatatypeConverter.printHexBinary(encryptedData));
 		
 		return DatatypeConverter.printHexBinary(encryptedData);
 	}

@@ -40,7 +40,6 @@ public class LicenceControl {
 			byte[] bytes = Crypto.decryptData(Utils.stringToByteArray(query), Crypto.getPrivateKey());
 			String uncipherQuery = new String(bytes);
             String[] data = uncipherQuery.split(";");
-            System.out.println(data[1]);
             // Première vérification
 			if (data.length == 3) {
 				if (checkData(data)) {
@@ -78,7 +77,8 @@ public class LicenceControl {
 		try {
 			// On attend dans la requete la licence, le checksum, la clé temp
 			if (data.length == 2) {
-				if (checkData(data)) {
+				DAO dao = new DAOLicences();
+				if (dao.validateLicence(data[0])) {
 					return unregisterClient(data);
 				} else return LICENCE_CONTROL_FAILURE;
 			} else {
@@ -101,7 +101,7 @@ public class LicenceControl {
 		if (dao.deleteSession(oldKey)) {
 			return UNREGISTERED;
 		} else {
-			return INVALID_QUERY;
+			return DAO_ERROR;
 		}
 	}
 	

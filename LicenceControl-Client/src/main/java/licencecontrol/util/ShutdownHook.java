@@ -1,6 +1,7 @@
 package licencecontrol.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -10,33 +11,57 @@ public class ShutdownHook extends Thread{
 	
 	private String licence;
 	private String tempKey;
+	private String tempKeyFilePath;
 	
+	/**
+	 * Thread du shutdown hook qui sera lancé à la fermeture de choco
+	 * Va signaler au serveur que la session est libérée puis supprimer la clé temporaire
+	 * stockee localement
+	 */
 	@Override
 	public void run() {
 		System.out.println("Fermeture de la session");
-		URL url;
-		try {
-			BufferedReader rd  = null;
-			StringBuilder sb = null;
-			String line = null;
-			String query = getLicence() + ";" + getTempKey();
- 			url = new URL("http://localhost:8080/rest/licence/unregister?query="+query);
-			HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
-			httpCon.setDoOutput(true);
-			httpCon.setRequestMethod("GET");
-			httpCon.setReadTimeout(10000);
-			httpCon.connect();
-			
-			rd  = new BufferedReader(new InputStreamReader(httpCon.getInputStream()));
-	        sb = new StringBuilder();
-
-	        // Récéption de la réponse du serveur
-	        while ((line = rd.readLine()) != null) {
-	            sb.append(line);
-	        }
-	        System.out.println(sb.toString());
-		} catch (IOException e) {
-			System.out.println("Erreur d'entrées / sorties");
+		if (tempKey != null) {
+			URL url;
+			try {
+				BufferedReader rd  = null;
+				StringBuilder sb = null;
+				String line = null;
+				String query = getLicence() + ";" + getTempKey();
+	 			url = new URL("http://localhost:8080/rest/licence/unregister?query="+query);
+				HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+				httpCon.setDoOutput(true);
+				httpCon.setRequestMethod("GET");
+				httpCon.setReadTimeout(10000);
+				httpCon.connect();
+				
+				rd  = new BufferedReader(new InputStreamReader(httpCon.getInputStream()));
+		        sb = new StringBuilder();
+	
+		        // Récéption de la réponse du serveur
+		        while ((line = rd.readLine()) != null) {
+		            sb.append(line);
+		        }
+		        int i = Integer.valueOf(sb.toString());
+		        switch (i) {
+			        case 1 : {
+			        	System.out.println("Erreur du serveur de BDD");
+			        	break;
+			        }
+			        case 2 : {
+			        	System.out.println("Rejet du controle de licence lors de la fermeture de session");
+			        	break;
+			        }
+			        case 4 : {
+			        	System.out.println("Session liberee");
+			        	// Suppression du fichier temporaire contenant la licence
+			        	File MyFile = new File(getTempKeyFilePath()); 
+			        	MyFile.delete(); 
+			        }
+		        }
+			} catch (IOException e) {
+				System.out.println("Erreur d'entrées / sorties");
+			}
 		}
 	}
 	
@@ -54,5 +79,13 @@ public class ShutdownHook extends Thread{
 	
 	public void setTempKey(String t) {
 		tempKey = t;
+	}
+
+	public String getTempKeyFilePath() {
+		return tempKeyFilePath;
+	}
+
+	public void setTempKeyFilePath(String tempKeyFilePath) {
+		this.tempKeyFilePath = tempKeyFilePath;
 	}
 }

@@ -35,12 +35,20 @@ public class LicenceControl {
 	private String checkSum;
 	private ShutdownHook shutdownHook;
 	
+	/**
+	 * Constructeur privé du singleton
+	 * Attache un shutdownhook à l'éxecution
+	 */
 	private LicenceControl() {
 		token = Crypto.generateToken();
 		shutdownHook = new ShutdownHook();
 		Runtime.getRuntime().addShutdownHook(shutdownHook);
 	}
 	
+	/**
+	 * Renvoie l'instance du controleur de licence, qui est un singleton
+	 * @return
+	 */
 	public static LicenceControl getInstance() {
 		return licenceController;
 	}
@@ -79,7 +87,10 @@ public class LicenceControl {
         		final String tempKey = response[1];
         		writeTempKey(tempKey);
         		shutdownHook.setTempKey(tempKey);
-        		System.out.println("OK ! Clé temporaire : " + tempKey);
+        	} else {
+        		// L'identité du serveur a été usurpée
+        		System.err.println("CHOCO -> Serveur non reconnu");
+        		System.exit(0);
         	}
         	
         } else if (response.length == 1) {
@@ -87,35 +98,39 @@ public class LicenceControl {
         	int error = Integer.valueOf(response[0]);
         	switch (error) {
         	case 0 : {
-        		System.err.println("CHOCO -> Erreur du serveur de contrôle de licence");
+        		System.err.println("CHOCO -> Erreur du serveur de controle de licence");
         		break;
         	}
         	case 1 : {
-        		System.err.println("CHOCO -> Erreur de la base de donnéees des licences");
+        		System.err.println("CHOCO -> Erreur de la base de donnees des licences");
         		break;
         	}
         	case 2 : {
-        		System.err.println("CHOCO -> Contrôle de licence refusé");
+        		System.err.println("CHOCO -> Controle de licence refuse");
         		break;
         	}
         	case 3 : {
-        		System.err.println("CHOCO -> Nombre maximum d'utilisateurs atteint");
+        		System.err.println("CHOCO -> Nombre maximum utilisateurs atteint");
         		break;
         	}
         	case 4 : {
-        		System.out.println("CHOCO -> Session libérée");
+        		System.out.println("CHOCO -> Session liberee");
         		break;
         	}
         	default : System.err.println("CHOCO -> Erreur inconnue");
         	}
         	System.exit(0);
         } else {
-        	System.err.println("Réponse invalide du serveur");
+        	System.err.println("Reponse invalide du serveur");
         	System.exit(0);
         }
         rd.close();
 	}
 	
+	/**
+	 * Ecrit la clé temporaire dans un fichier dans le même répertoire que celui de choco
+	 * @param tempKey la clé temporaire à stocker
+	 */
 	private void writeTempKey(String tempKey) {
 		try {
 			FileWriter fw = new FileWriter(getTempKeyPath(), false);
@@ -273,6 +288,7 @@ public class LicenceControl {
 			File file = new File(getPath());
 			file.getParent();
 			tempKeyPath = (new File(getPath())).getParent() + File.separatorChar + "temp";
+			shutdownHook.setTempKeyFilePath(tempKeyPath);
 		}
 		return tempKeyPath;
 	}

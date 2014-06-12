@@ -72,7 +72,6 @@ public class DAOLicences implements DAO {
 				nbUsersMax = rs.getInt("nb_users_max");
 			}
 			rs.close();
-			System.out.println(nbUsersMax);
 			return nbUsersMax;
 		} catch (SQLException e) {
 			throw new DAOException(e.getMessage());
@@ -105,7 +104,6 @@ public class DAOLicences implements DAO {
 				nbSessionsActives = rs.getInt("nb_sessions_actives");
 			}
 			rs.close();
-			System.out.println(nbSessionsActives);
 			return nbSessionsActives;
 		} catch (SQLException e) {
 			throw new DAOException(e.getMessage());
