@@ -10,7 +10,8 @@ public class DAOLicences implements DAO {
 	private static final String QUERY_CHECKSUM = "SELECT `build_checksum` FROM builds b, licences l WHERE l.id_build = b.id_build AND l.licence = ?";
 	private static final String QUERY_NB_MAX_USERS = "SELECT `nb_users_max` FROM `licences` WHERE `licence` = ?";
 	private static final String QUERY_INSERT_TEMPORARY_KEY = "INSERT INTO `session` (`licence`, `session_key`, `expiration_date`) VALUES (?, ?, ?);";
-
+	private static final String QUERY_NB_SESSIONS_ACTIVES = "SELECT COUNT(`session_key`) AS nb_sessions_actives FROM  `session` WHERE SYSDATE() <  `expiration_date` AND  `licence` = ?";
+	
 	//private static DAOLicence instance;
 	private Connection connection;
 
@@ -104,8 +105,19 @@ public class DAOLicences implements DAO {
 	}
 
 	@Override
-	public int getNbActiveSessions(String licence) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getNbActiveSessions(String licence) throws DAOException {
+		try {
+			PreparedStatement statement = connection.prepareStatement(QUERY_NB_SESSIONS_ACTIVES);
+			statement.setString(1, licence);
+			ResultSet rs = statement.executeQuery();
+			int nbSessionsActives = 0;
+			if(rs.first()) {
+				nbSessionsActives = rs.getInt("nb_sessions_actives");
+			}
+			rs.close();
+			return nbSessionsActives;
+		} catch (SQLException e) {
+			throw new DAOException(e.getMessage());
+		}
 	}
 }
