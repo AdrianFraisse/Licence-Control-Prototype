@@ -28,21 +28,21 @@ public class DAOStub implements DAO {
 	@Override
 	public int getNbActiveSessions(String licence) {
 		// TODO Auto-generated method stub
-		return 0;
+		return 2;
 	}
 
 	@Override
 	public boolean deleteSession(String sessionKey, String licence)
 			throws DAOException {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
-	public int sessionExists(String licence, String tempKey)
+	public SessionState sessionExists(String licence, String tempKey)
 			throws DAOException {
 		// TODO Auto-generated method stub
-		return 0;
+		return SessionState.ACTIVE;
 	}
 
 }
