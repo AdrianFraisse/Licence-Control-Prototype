@@ -6,6 +6,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 
@@ -45,5 +46,15 @@ public class Crypto {
 		System.out.println("Encrypted Data: " + DatatypeConverter.printHexBinary(encryptedData));
 		
 		return DatatypeConverter.printHexBinary(encryptedData);
+	}
+	
+	
+	/**
+	 * Génération d'un token aléatoire sécurisé.
+	 * @return token
+	 */
+	public static String generateToken() {
+		SecureRandom random = new SecureRandom();
+		return new BigInteger(130, random).toString();
 	}
 }
