@@ -38,4 +38,11 @@ public class DAOStub implements DAO {
 		return false;
 	}
 
+	@Override
+	public int sessionExists(String licence, String tempKey)
+			throws DAOException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

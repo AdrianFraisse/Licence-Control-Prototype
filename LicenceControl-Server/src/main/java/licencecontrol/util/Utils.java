@@ -2,6 +2,7 @@ package licencecontrol.util;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -18,11 +19,11 @@ public final class Utils {
 		return new BigInteger(130, random).toString(32);
 	}
 	
-	public static Date generateExpirationDate() {
+	public static Timestamp generateExpirationDate() {
 		Calendar cal = Calendar.getInstance();
 	    cal.setTime(new Date());
 	    cal.add(Calendar.HOUR_OF_DAY, 1);
 	    // Todo : lire en base la durée de validité d'une clé temporaire
-		return cal.getTime();
+		return new Timestamp(cal.getTime().getTime());
 	}
 }

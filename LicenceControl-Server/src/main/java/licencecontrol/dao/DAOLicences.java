@@ -132,6 +132,13 @@ public class DAOLicences implements DAO {
 			throw new DAOException(e.getMessage());
 		}
 	}
+
+	@Override
+	public int sessionExists(String licence, String tempKey)
+			throws DAOException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 	
 }

@@ -105,10 +105,15 @@ public class LicenceControl {
 		final String  oldKey = data[3];
 		final String temporaryKey = Utils.generateTemporaryKey();
 		DAO dao = new DAOLicences();
-		if (dao.sessionExists(licence, oldKey) == 0) {
-			dao.removeSession(licence, oldKey);
-			dao.insertTemporaryKey(licence, temporaryKey, Utils.generateExpirationDate());
-			return temporaryKey;
+		try {
+			if (dao.sessionExists(licence, oldKey) == 0) {
+				dao.deleteSession(licence, oldKey);
+				dao.insertTemporaryKey(licence, temporaryKey, Utils.generateExpirationDate());
+				return temporaryKey;
+			}
+		} catch (DAOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return LICENCE_CONTROL_FAILURE;
 	}
