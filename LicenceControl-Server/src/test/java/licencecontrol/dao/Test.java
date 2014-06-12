@@ -2,7 +2,6 @@ package licencecontrol.dao;
 
 import java.sql.Timestamp;
 
-import licencecontrol.server.LicenceControl;
 import licencecontrol.server.LicenceControlTest;
 
 
