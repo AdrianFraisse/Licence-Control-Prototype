@@ -142,5 +142,4 @@ public class LicenceControl {
 		DAO dao = new DAOLicences();
 		return dao.validateLicence(licence) && dao.getChecksum(licence).equals(checkSum);
 	}
-	
 }
