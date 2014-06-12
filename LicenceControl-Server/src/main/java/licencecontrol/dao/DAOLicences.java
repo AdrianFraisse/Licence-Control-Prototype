@@ -12,7 +12,7 @@ public class DAOLicences implements DAO {
 	private static final String QUERY_INSERT_TEMPORARY_KEY = "INSERT INTO `session` (`licence`, `session_key`, `expiration_date`) VALUES (?, ?, ?);";
 	private static final String QUERY_NB_SESSIONS_ACTIVES = "SELECT COUNT(`session_key`) AS nb_sessions_actives FROM  `session` WHERE SYSDATE() <  `expiration_date` AND  `licence` = ?";
 	private static final String QUERY_DELETE_SESSION = "DELETE FROM `session` WHERE `session_key`= ?";
-	private static final String QUERY_SESSION_EXISTS = "SELECT `expiration_date` FROM  `session` WHERE  `session_key` = ? AND `licence` = ?";
+	private static final String QUERY_SESSION_EXISTS = "SELECT `expiration_date` FROM  `session` WHERE  `licence` = ? AND `session_key` = ?";
 	
 	//private static DAOLicence instance;
 	private Connection connection;
@@ -72,6 +72,7 @@ public class DAOLicences implements DAO {
 				nbUsersMax = rs.getInt("nb_users_max");
 			}
 			rs.close();
+			System.out.println(nbUsersMax);
 			return nbUsersMax;
 		} catch (SQLException e) {
 			throw new DAOException(e.getMessage());
@@ -104,6 +105,7 @@ public class DAOLicences implements DAO {
 				nbSessionsActives = rs.getInt("nb_sessions_actives");
 			}
 			rs.close();
+			System.out.println(nbSessionsActives);
 			return nbSessionsActives;
 		} catch (SQLException e) {
 			throw new DAOException(e.getMessage());
