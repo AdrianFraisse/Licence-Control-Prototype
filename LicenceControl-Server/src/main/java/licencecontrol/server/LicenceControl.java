@@ -41,12 +41,16 @@ public class LicenceControl {
 			String uncipherQuery = new String(bytes);
             String[] data = uncipherQuery.split(";");
             // Première vérification
+            System.out.println(data[0]);
+            System.out.println(data[1]);
+            System.out.println(data[2]);
 			if (data.length == 3) {
 				if (checkData(data)) {
 					// Premier contrôle : reponse == token et une clé temporaire
 					return registerClient(data);
 				} else return LICENCE_CONTROL_FAILURE;
 			} else if (data.length == 4) {
+				System.out.println(data[3]);
 				// Requète d'actualisation
 				if (checkData(data)) {
 					return actualizeClient(data);
@@ -95,10 +99,9 @@ public class LicenceControl {
 	 * @throws DAOException
 	 */
 	private String unregisterClient(String[] data) throws DAOException {
-		final String licence = data[0];
 		final String oldKey = data[1];
 		DAO dao = new DAOLicences();
-		if (dao.deleteSession(oldKey, licence)) {
+		if (dao.deleteSession(oldKey)) {
 			return UNREGISTERED;
 		} else {
 			return INVALID_QUERY;
@@ -145,7 +148,7 @@ public class LicenceControl {
 		switch (sessionState) {
 		case ACTIVE : {
 			// La session est active
-			dao.deleteSession(licence, oldKey);
+			dao.deleteSession(oldKey);
 			final String temporaryKey = Utils.generateTemporaryKey();
 			dao.insertTemporaryKey(licence, temporaryKey, Utils.generateExpirationDate());
 			return token + ";" + temporaryKey;
