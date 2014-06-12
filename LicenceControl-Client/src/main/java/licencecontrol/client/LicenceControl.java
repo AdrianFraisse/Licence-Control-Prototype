@@ -3,6 +3,7 @@ package licencecontrol.client;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,11 +38,24 @@ public class LicenceControl {
 		return licenceController;
 	}
 	
+	/**
+	 * Effectue un contrôle de licence sur le serveur
+	 * @throws MalformedURLException
+	 * @throws RuntimeException
+	 * @throws IOException
+	 */
 	public void controlOnServer() throws MalformedURLException, RuntimeException, IOException {
 		BufferedReader rd  = null;
 		StringBuilder sb = null;
 		String line = null;
-		URL url = new URL("http://localhost:8080/rest/licence/check?query="+getData());
+		String query = getData();
+		// Récupération d'une éventuelle clé temporaire
+		final String tempKey =  getTempKey();
+		if (!tempKey.isEmpty()) {
+			// Si une clé temporaire est présente, on est soit en validation soit en post-crash.
+			query += ";" + tempKey;
+		}
+		URL url = new URL("http://localhost:8080/rest/licence/register?query="+getData());
 		HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
 		httpCon.setDoOutput(true);
 		httpCon.setRequestMethod("GET");
@@ -62,14 +76,26 @@ public class LicenceControl {
         rd.close();
 	}
 	
-	public String getData() throws RuntimeException, IOException {
-		//String data = getCheckSum() + ";" + getLicence() + ";" + generateToken();
-		//String checksum = getCheckSum();
-		String token = generateToken();
-		System.out.println("40d869c6cac79f45dc866393ccd101fe43601d10cd7da4699b832f08b8ee3423");
-		System.out.println(token);
-		String data = "40d869c6cac79f45dc866393ccd101fe43601d10cd7da4699b832f08b8ee3423" + ";" + "licence-proto" + token;
-		
+	/**
+	 * Retourne une eventuelle clé temporaire
+	 * @return la clé
+	 * @throws IOException
+	 */
+	private String getTempKey() throws IOException {
+		InputStream inputStream = new FileInputStream(getTempKeyPath());
+		BufferedReader stream = new BufferedReader(new InputStreamReader(inputStream));
+
+		String tempKey = stream.readLine();
+		// Todo gerer null
+		stream.close();
+		if (tempKey == null) {
+			tempKey = "";
+		}
+		return tempKey;
+	}
+
+	private String getData() throws RuntimeException, IOException {
+		String data = getCheckSum() + ";" + getLicence() + ";" + getToken();
 		try {
 			return Crypto.encryptData(data, Crypto.getPublicKey() );
 		} catch (InvalidKeyException | NoSuchAlgorithmException
@@ -84,7 +110,7 @@ public class LicenceControl {
 	 * Génération d'un token aléatoire sécurisé.
 	 * @return token
 	 */
-	public String generateToken() {
+	private String generateToken() {
 		SecureRandom random = new SecureRandom();
 		return new BigInteger(130, random).toString();
 	}
@@ -93,7 +119,7 @@ public class LicenceControl {
 	 * Production du checksum du jar de choco.
 	 * @return la chaine représentant le checkSum
 	 */
-	public String getCheckSum() {
+	private String getCheckSum() {
         StringBuilder sb = new StringBuilder();
         FileInputStream fis = null;
         try {
@@ -132,7 +158,7 @@ public class LicenceControl {
 	 * @return la chaine de caractère de la licence
 	 * @throws IOException exception lors de la lecture
 	 */
-	public String getLicence() throws IOException {
+	private String getLicence() throws IOException {
 		InputStream inputStream = new FileInputStream(getLicencePath());
 		BufferedReader stream = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -147,7 +173,7 @@ public class LicenceControl {
 	 * @return chemin d'accès
 	 * @throws UnsupportedEncodingException Exception de décodage
 	 */
-	public String getPath() {
+	private String getPath() {
 		// récupération du chemin d'accès au jar
 		String path = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
 		String decodedPath = "";
@@ -166,9 +192,23 @@ public class LicenceControl {
 	 * Récupération du chemin d'accès à la licence
 	 * @return chemin d'accès
 	 */
-	public String getLicencePath() {
+	private String getLicencePath() {
 		File file = new File(getPath());
 		file.getParent();
 		return (new File(getPath())).getParent() + File.separatorChar + "licence.txt";
+	}
+	
+	/**
+	 * récupération du chemin d'accès à la clé temporaire
+	 * @return chemin d'accès
+	 */
+	private String getTempKeyPath() {
+		File file = new File(getPath());
+		file.getParent();
+		return (new File(getPath())).getParent() + File.separatorChar + "temp.txt";
+	}
+
+	public String getToken() {
+		return token;
 	}
 }
