@@ -96,7 +96,7 @@ public class LicenceControl {
 	 */
 	private String unregisterClient(String[] data) throws DAOException {
 		final String licence = data[0];
-		final String oldKey = data[2];
+		final String oldKey = data[1];
 		DAO dao = new DAOLicences();
 		if (dao.deleteSession(oldKey, licence)) {
 			return UNREGISTERED;

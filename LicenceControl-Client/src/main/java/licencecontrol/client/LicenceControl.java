@@ -156,7 +156,7 @@ public class LicenceControl {
 	 * @throws IOException
 	 */
 	private String getData() throws RuntimeException, IOException {
-		String data = getCheckSum() + ";" + getLicence() + ";" + getToken();
+		String data = getLicence() + ";" + getCheckSum() + ";" + getToken();
 		String tempKey = getTempKey();
 		if (!tempKey.isEmpty()) {
 			// S'il y a un clé temporaire, on la concatène à la requète
