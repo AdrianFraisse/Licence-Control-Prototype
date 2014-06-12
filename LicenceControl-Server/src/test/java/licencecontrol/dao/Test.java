@@ -2,11 +2,14 @@ package licencecontrol.dao;
 
 import java.sql.Timestamp;
 
+import licencecontrol.server.LicenceControl;
+import licencecontrol.server.LicenceControlTest;
+
 
 public class Test {
 
 	public static void main(String[] args) {
-		DAO dao = new DAOLicences();
+		DAO dao = new DAOStub();
 		String licence = "licence-proto";
 		try {
 			System.out.println(dao.validateLicence(licence)); //true			
@@ -88,5 +91,9 @@ public class Test {
 		} catch (DAOException e) {
 			System.err.println("Echec de la requete SessionState NULL" + e.getMessage());
 		}
+		
+		LicenceControlTest lc = new LicenceControlTest();
+		System.out.println(lc.check("licence-proto;40d869c6cac79f45dc866393ccd101fe43601d10cd7da4699b832f08b8ee3423;token"));
+		System.out.println(lc.revalidate("licence-proto;40d869c6cac79f45dc866393ccd101fe43601d10cd7da4699b832f08b8ee3423;token;gcl9asn71v4u6n0mejf2l3g3aa"));
 	}
 }

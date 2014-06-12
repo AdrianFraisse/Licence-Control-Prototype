@@ -150,5 +150,5 @@ public class DAOLicences implements DAO {
 		} catch (SQLException e) {
 			throw new DAOException(e.getMessage());
 		}
-	}	
+	}
 }

@@ -6,6 +6,8 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.xml.bind.DatatypeConverter;
+
 public final class Utils {
 	
 	/**
@@ -25,5 +27,9 @@ public final class Utils {
 	    cal.add(Calendar.HOUR_OF_DAY, 1);
 	    // Todo : lire en base la durée de validité d'une clé temporaire
 		return new Timestamp(cal.getTime().getTime());
+	}
+    
+    public static byte[] stringToByteArray(String s) {
+	    return DatatypeConverter.parseHexBinary(s);
 	}
 }
