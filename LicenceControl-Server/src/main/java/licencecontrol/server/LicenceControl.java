@@ -25,8 +25,8 @@ public class LicenceControl {
 	private static final String SERVER_ERROR = "0";
 	
 	/**
-	 * Réceptionne une requète de première validation de licence 
-	 * (Ouverture d'une session)
+	 * Réceptionne une requète validation de licence 
+	 * (Ouverture d'une session ou actualisation)
 	 * @param query la requète passée au format texte
 	 * @return la réponse au format texte
 	 */
@@ -34,81 +34,34 @@ public class LicenceControl {
 	@Path("register")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String register(@QueryParam("query") String query) {
-		String[] data = query.split(";");
 		// Rejet d'une requète présentant un format erronné
 		try {
-			if (data.length == 3) {
-				final String response = data[2] + ";";
-				if (checkData(data)) {
-					// Premier contrôle : reponse == token et une clé temporaire
-					return response.concat(registerClient(data));
-				} else return LICENCE_CONTROL_FAILURE;
-			} else {
-				// requète invalide
-				return INVALID_QUERY;
-			}
-		} catch (DAOException e) {
-			return DAO_ERROR + ";" + e.getMessage();
-		}
-	}
-	
-	/**
-	 * Réceptionne une requète de première validation de licence 
-	 * (Ouverture d'une session)
-	 * @param query la requète passée au format texte
-	 * @return la réponse au format texte
-	 */
-	@GET
-	@Path("check")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String check(@QueryParam("query") String query) {
-		try {
-            byte[] bytes = Crypto.decryptData(Utils.stringToByteArray(query), Crypto.getPrivateKey());
-			String  uncipherQuery = new String(bytes);
+			byte[] bytes = Crypto.decryptData(Utils.stringToByteArray(query), Crypto.getPrivateKey());
+			String uncipherQuery = new String(bytes);
             String[] data = uncipherQuery.split(";");
+            // Première vérification
 			if (data.length == 3) {
 				final String response = data[2] + ";";
 				if (checkData(data)) {
 					// Premier contrôle : reponse == token et une clé temporaire
 					return response.concat(registerClient(data));
-				} else return LICENCE_CONTROL_FAILURE;
-			} else {
-				// requète invalide
-				return INVALID_QUERY;
-			}
-		} catch (DAOException e) {
-			e.printStackTrace();
-			return DAO_ERROR + ";" + e.getMessage();
-		} catch (Exception e) {
-			e.printStackTrace();
-            return SERVER_ERROR;
-        }
-	}
-	
-	/**
-	 * Réceptionne une requète de re-contrôle de licence.
-	 * Actualise une session.
-	 * @param query
-	 * @return
-	 */
-	@GET
-	@Path("revalidate")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String revalidate(@QueryParam("query") String query) {
-		String[] data = query.split(";");
-		try {
-			// On attend dans la requete la licence, le checksum, le token, la clé temp
-			if (data.length == 4) {
+				} else return response.concat(LICENCE_CONTROL_FAILURE);
+			} else if (data.length == 4) {
+				// Requète d'actualisation
 				final String response = data[2] + ";";
 				if (checkData(data)) {
 					return response.concat(actualizeClient(data));
 				} else return response.concat(LICENCE_CONTROL_FAILURE);
 			} else {
+				// requète invalide
 				return INVALID_QUERY;
 			}
 		} catch (DAOException e) {
 			return DAO_ERROR + ";" + e.getMessage();
-		}
+		} catch (Exception e) {
+			e.printStackTrace();
+            return SERVER_ERROR;
+        }
 	}
 	
 	/**

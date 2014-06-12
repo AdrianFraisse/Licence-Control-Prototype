@@ -21,6 +21,10 @@ public final class Utils {
 		return new BigInteger(130, random).toString(32);
 	}
 	
+	/**
+	 * Génération d'une date d'expiration au format Timestamp
+	 * @return un Timestamp
+	 */
 	public static Timestamp generateExpirationDate() {
 		Calendar cal = Calendar.getInstance();
 	    cal.setTime(new Date());
@@ -29,6 +33,11 @@ public final class Utils {
 		return new Timestamp(cal.getTime().getTime());
 	}
     
+	/**
+	 * Converti un String en tableau d'octets
+	 * @param s String à convertir
+	 * @return la chaine dans un tableau d'octets
+	 */
     public static byte[] stringToByteArray(String s) {
 	    return DatatypeConverter.parseHexBinary(s);
 	}
