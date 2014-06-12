@@ -96,20 +96,31 @@ public class LicenceControl {
 
 	/**
 	 * Actualise la session d'un client.
-	 * Vérifie en base que 
+	 * Si la session du client existe et n'a pas expiré, génère une nouvelle clé temporaire et 
+	 * supprime l'ancienne.
+	 * Si la session existe mais a expiré, supprime cette session puis enregistre le client avec une nouvelle.
+	 * Si la session n'existe pas, la requète est rejetée, il s'agit d'une usurpation.
 	 * @param data
 	 * @return
 	 */
 	private String actualizeClient(String[] data) {
 		final String licence = data[0];
 		final String  oldKey = data[3];
-		final String temporaryKey = Utils.generateTemporaryKey();
 		DAO dao = new DAOLicences();
 		try {
-			if (dao.sessionExists(licence, oldKey) == 0) {
+			final int sessionState = dao.sessionExists(licence, oldKey);
+			switch (sessionState) {
+			case 0 : {
+				// La session est active
 				dao.deleteSession(licence, oldKey);
+				final String temporaryKey = Utils.generateTemporaryKey();
 				dao.insertTemporaryKey(licence, temporaryKey, Utils.generateExpirationDate());
 				return temporaryKey;
+			} 
+			// La session a expiré
+			case 1 : return registerClient(data);
+			// La session n'existe pas
+			case 2 : return LICENCE_CONTROL_FAILURE;
 			}
 		} catch (DAOException e) {
 			// TODO Auto-generated catch block
