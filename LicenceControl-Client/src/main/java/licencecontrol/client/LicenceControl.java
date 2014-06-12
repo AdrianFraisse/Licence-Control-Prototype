@@ -3,6 +3,7 @@ package licencecontrol.client;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -120,12 +121,16 @@ public class LicenceControl {
 	 * @throws IOException
 	 */
 	private String getTempKey() throws IOException {
-		InputStream inputStream = new FileInputStream(getTempKeyPath());
-		BufferedReader stream = new BufferedReader(new InputStreamReader(inputStream));
-
-		String tempKey = stream.readLine();
-		// Todo gerer null
-		stream.close();
+		String tempKey;
+		try {
+			InputStream inputStream = new FileInputStream(getTempKeyPath());
+			BufferedReader stream = new BufferedReader(new InputStreamReader(inputStream));
+			tempKey = stream.readLine();
+			stream.close();
+		} catch (FileNotFoundException e) {
+			tempKey = "";
+		}
+		
 		if (tempKey == null) {
 			tempKey = "";
 		}
@@ -239,8 +244,8 @@ public class LicenceControl {
 	 * @return chemin d'accès
 	 */
 	public String getLicencePath() {
-			File file = new File(getPath());
-			file.getParent();
+		File file = new File(getPath());
+		file.getParent();
 		return (new File(getPath())).getParent() + File.separatorChar + "licence.txt";
 	}
 	
