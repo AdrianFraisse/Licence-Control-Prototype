@@ -11,6 +11,7 @@ public class DAOLicences implements DAO {
 	private static final String QUERY_NB_MAX_USERS = "SELECT `nb_users_max` FROM `licences` WHERE `licence` = ?";
 	private static final String QUERY_INSERT_TEMPORARY_KEY = "INSERT INTO `session` (`licence`, `session_key`, `expiration_date`) VALUES (?, ?, ?);";
 	private static final String QUERY_NB_SESSIONS_ACTIVES = "SELECT COUNT(`session_key`) AS nb_sessions_actives FROM  `session` WHERE SYSDATE() <  `expiration_date` AND  `licence` = ?";
+	private static final String QUERY_DELETE_SESSION = "DELETE FROM `session` WHERE `session_key`= ? AND `licence` = ?";
 	
 	//private static DAOLicence instance;
 	private Connection connection;
@@ -95,13 +96,10 @@ public class DAOLicences implements DAO {
 			statement.setString(2, key);
 			statement.setObject(3, timestamp);
 			int rowAffected = statement.executeUpdate();
-			if(rowAffected == 1) {
-				return true;
-			}
+			return rowAffected == 1;
 		} catch (SQLException e) {
 			throw new DAOException(e.getMessage());
 		}
-		return false;
 	}
 
 	@Override
@@ -120,4 +118,20 @@ public class DAOLicences implements DAO {
 			throw new DAOException(e.getMessage());
 		}
 	}
+
+	@Override
+	public boolean deleteSession(String sessionKey, String licence)
+			throws DAOException {
+		try {
+			PreparedStatement statement = connection.prepareStatement(QUERY_DELETE_SESSION);
+			statement.setString(1, sessionKey);
+			statement.setString(2, licence);
+			int rowAffected = statement.executeUpdate();
+			return rowAffected == 1;
+		} catch (SQLException e) {
+			throw new DAOException(e.getMessage());
+		}
+	}
+	
+	
 }

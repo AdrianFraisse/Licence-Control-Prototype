@@ -40,7 +40,7 @@ public class Test {
 		try {
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis()+(1000*60*60));
 			Date date = new Date(1402508820);
-			boolean ok = dao.insertTemporaryKey(licence, "yahhci6yyahhci6yyahhci6yyahhci6y", timestamp);
+			boolean ok = dao.insertTemporaryKey(licence, "key_to_delete", timestamp);
 			System.out.println(ok); //true		
 			
 		} catch (DAOException e) {
@@ -48,10 +48,17 @@ public class Test {
 		}
 		try {
 			int nb = dao.getNbActiveSessions(licence);
-			System.out.println(nb); //1 -> actualiser si besoin la bdd avant de tester		
+			System.out.println(nb); //1 	
 			
 		} catch (DAOException e) {
 			System.err.println("Echec de la requete getNbSessionsActives " + e.getMessage());
+		}
+		try {
+			boolean ok = dao.deleteSession("key_to_delete", licence);
+			System.out.println(ok); //true		
+			
+		} catch (DAOException e) {
+			System.err.println("Echec de la requete deleteSession " + e.getMessage());
 		}
 	}
 }
