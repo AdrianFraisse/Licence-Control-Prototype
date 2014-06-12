@@ -9,15 +9,18 @@ import javax.ws.rs.core.MediaType;
 import licencecontrol.dao.DAO;
 import licencecontrol.dao.DAOException;
 import licencecontrol.dao.DAOLicences;
+import licencecontrol.util.Crypto;
 import licencecontrol.util.Utils;
 
 
 @Path("/licence")
 public class LicenceControl {
 	
-	private static final String DAO_ERROR = "1";
-	private static final String INVALID_QUERY = "Invalid Query";
-	private static final String LICENCE_CONTROL_FAILURE = "2";
+	private static final String LICENCE_CONTROL_FAILURE = "1";
+	private static final String INVALID_QUERY = "2";
+	private static final String SERVER_ERROR = "3";
+	private static final String DAO_ERROR = "4";
+	
 	/**
 	 * Réceptionne une requète de première validation de licence 
 	 * (Ouverture d'une session)
@@ -28,9 +31,10 @@ public class LicenceControl {
 	@Path("check")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String check(@QueryParam("query") String query) {
-		String[] data = query.split(";");
-		// Rejet d'une requète présentant un format erronné
 		try {
+            byte[] bytes = Crypto.decryptData(Utils.stringToByteArray(query), Crypto.getPrivateKey());
+			String  uncipherQuery = new String(bytes);
+            String[] data = uncipherQuery.split(";");
 			if (data.length == 3) {
 				final String response = data[2] + ";";
 				if (checkData(data)) {
@@ -44,7 +48,10 @@ public class LicenceControl {
 		} catch (DAOException e) {
 			e.printStackTrace();
 			return DAO_ERROR + ";" + e.getMessage();
-		}
+		} catch (Exception e) {
+			e.printStackTrace();
+            return SERVER_ERROR;
+        }
 	}
 	
 	/**
