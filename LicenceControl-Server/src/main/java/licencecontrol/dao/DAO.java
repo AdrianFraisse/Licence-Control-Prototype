@@ -1,15 +1,14 @@
 package licencecontrol.dao;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 public interface DAO {
 	
 	public boolean validateLicence(String licence) throws DAOException;
 	public String getChecksum(String licence) throws DAOException;
 	public int getNbMaxUsers(String licence) throws DAOException;
-	public boolean insertTemporaryKey(String licence, String tempKey, Date date);
-	public int getNbActiveSessions(String licence);
-	public int sessionExists(String licence, String tempKey);
-	public void removeSession(String licence, String oldKey);
-	
+	public boolean insertTemporaryKey(String licence, String tempKey, Timestamp timestamp) throws DAOException;
+	public int getNbActiveSessions(String licence) throws DAOException;
+	public int sessionExists(String licence, String tempKey) throws DAOException;
+	public boolean deleteSession(String sessionKey, String licence) throws DAOException;
 }

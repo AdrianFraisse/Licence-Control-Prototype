@@ -1,7 +1,6 @@
 package licencecontrol.dao;
 
 import java.sql.*;
-import java.util.Date;
 
 import licencecontrol.db.ConnectionMySql;
 
@@ -10,7 +9,10 @@ public class DAOLicences implements DAO {
 	private static final String QUERY_VALIDATE_LIC = "SELECT COUNT(licence) as nb FROM `licences` WHERE `licence`= ?";
 	private static final String QUERY_CHECKSUM = "SELECT `build_checksum` FROM builds b, licences l WHERE l.id_build = b.id_build AND l.licence = ?";
 	private static final String QUERY_NB_MAX_USERS = "SELECT `nb_users_max` FROM `licences` WHERE `licence` = ?";
-
+	private static final String QUERY_INSERT_TEMPORARY_KEY = "INSERT INTO `session` (`licence`, `session_key`, `expiration_date`) VALUES (?, ?, ?);";
+	private static final String QUERY_NB_SESSIONS_ACTIVES = "SELECT COUNT(`session_key`) AS nb_sessions_actives FROM  `session` WHERE SYSDATE() <  `expiration_date` AND  `licence` = ?";
+	private static final String QUERY_DELETE_SESSION = "DELETE FROM `session` WHERE `session_key`= ? AND `licence` = ?";
+	
 	//private static DAOLicence instance;
 	private Connection connection;
 
@@ -86,26 +88,50 @@ public class DAOLicences implements DAO {
 	}
 
 	@Override
-	public boolean insertTemporaryKey(String licence, String tempKey, Date date) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean insertTemporaryKey(String licence, String key, Timestamp timestamp)
+			throws DAOException {
+		try {
+			PreparedStatement statement = connection.prepareStatement(QUERY_INSERT_TEMPORARY_KEY);
+			statement.setString(1, licence);
+			statement.setString(2, key);
+			statement.setObject(3, timestamp);
+			int rowAffected = statement.executeUpdate();
+			return rowAffected == 1;
+		} catch (SQLException e) {
+			throw new DAOException(e.getMessage());
+		}
 	}
 
 	@Override
-	public int getNbActiveSessions(String licence) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getNbActiveSessions(String licence) throws DAOException {
+		try {
+			PreparedStatement statement = connection.prepareStatement(QUERY_NB_SESSIONS_ACTIVES);
+			statement.setString(1, licence);
+			ResultSet rs = statement.executeQuery();
+			int nbSessionsActives = 0;
+			if(rs.first()) {
+				nbSessionsActives = rs.getInt("nb_sessions_actives");
+			}
+			rs.close();
+			return nbSessionsActives;
+		} catch (SQLException e) {
+			throw new DAOException(e.getMessage());
+		}
 	}
 
 	@Override
-	public int sessionExists(String licence, String tempKey) {
-		// TODO Auto-generated method stub
-		return 0;
+	public boolean deleteSession(String sessionKey, String licence)
+			throws DAOException {
+		try {
+			PreparedStatement statement = connection.prepareStatement(QUERY_DELETE_SESSION);
+			statement.setString(1, sessionKey);
+			statement.setString(2, licence);
+			int rowAffected = statement.executeUpdate();
+			return rowAffected == 1;
+		} catch (SQLException e) {
+			throw new DAOException(e.getMessage());
+		}
 	}
-
-	@Override
-	public void removeSession(String licence, String oldKey) {
-		// TODO Auto-generated method stub
-		
-	}
+	
+	
 }

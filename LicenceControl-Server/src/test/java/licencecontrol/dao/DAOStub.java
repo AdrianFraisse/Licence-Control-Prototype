@@ -1,6 +1,6 @@
 package licencecontrol.dao;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 public class DAOStub implements DAO {
 
@@ -20,11 +20,11 @@ public class DAOStub implements DAO {
 	}
 
 	@Override
-	public boolean insertTemporaryKey(String licence, String tempKey, Date date) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean insertTemporaryKey(String licence, String key, Timestamp timestamp)
+			throws DAOException {
+		return true;
 	}
-
+	
 	@Override
 	public int getNbActiveSessions(String licence) {
 		// TODO Auto-generated method stub
@@ -32,15 +32,10 @@ public class DAOStub implements DAO {
 	}
 
 	@Override
-	public int sessionExists(String licence, String tempKey) {
+	public boolean deleteSession(String sessionKey, String licence)
+			throws DAOException {
 		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void removeSession(String licence, String oldKey) {
-		// TODO Auto-generated method stub
-		
+		return false;
 	}
 
 }
