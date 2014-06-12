@@ -9,31 +9,23 @@ import javax.ws.rs.core.MediaType;
 import licencecontrol.dao.DAO;
 import licencecontrol.dao.DAOException;
 import licencecontrol.dao.DAOLicences;
+import licencecontrol.dao.DAOStub;
 import licencecontrol.dao.SessionState;
-import licencecontrol.util.Crypto;
 import licencecontrol.util.Utils;
 
 
-@Path("/licence")
-public class LicenceControl {
+public class LicenceControlTest {
 	
 	private static final String DAO_ERROR = "1";
 	private static final String INVALID_QUERY = "Invalid Query";
 	private static final String LICENCE_CONTROL_FAILURE = "2";
-	private static final String USER_LIMIT_REACHED = "3";
-	private static final String UNREGISTERED = "4";
-	private static final String SERVER_ERROR = "0";
-	
 	/**
 	 * Réceptionne une requète de première validation de licence 
 	 * (Ouverture d'une session)
 	 * @param query la requète passée au format texte
 	 * @return la réponse au format texte
 	 */
-	@GET
-	@Path("register")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String register(@QueryParam("query") String query) {
+	public String check(@QueryParam("query") String query) {
 		String[] data = query.split(";");
 		// Rejet d'une requète présentant un format erronné
 		try {
@@ -48,41 +40,9 @@ public class LicenceControl {
 				return INVALID_QUERY;
 			}
 		} catch (DAOException e) {
+			e.printStackTrace();
 			return DAO_ERROR + ";" + e.getMessage();
 		}
-	}
-	
-	/**
-	 * Réceptionne une requète de première validation de licence 
-	 * (Ouverture d'une session)
-	 * @param query la requète passée au format texte
-	 * @return la réponse au format texte
-	 */
-	@GET
-	@Path("check")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String check(@QueryParam("query") String query) {
-		try {
-            byte[] bytes = Crypto.decryptData(Utils.stringToByteArray(query), Crypto.getPrivateKey());
-			String  uncipherQuery = new String(bytes);
-            String[] data = uncipherQuery.split(";");
-			if (data.length == 3) {
-				final String response = data[2] + ";";
-				if (checkData(data)) {
-					// Premier contrôle : reponse == token et une clé temporaire
-					return response.concat(registerClient(data));
-				} else return LICENCE_CONTROL_FAILURE;
-			} else {
-				// requète invalide
-				return INVALID_QUERY;
-			}
-		} catch (DAOException e) {
-			e.printStackTrace();
-			return DAO_ERROR + ";" + e.getMessage();
-		} catch (Exception e) {
-			e.printStackTrace();
-            return SERVER_ERROR;
-        }
 	}
 	
 	/**
@@ -91,15 +51,12 @@ public class LicenceControl {
 	 * @param query
 	 * @return
 	 */
-	@GET
-	@Path("revalidate")
-	@Produces(MediaType.TEXT_PLAIN)
 	public String revalidate(@QueryParam("query") String query) {
 		String[] data = query.split(";");
 		try {
 			// On attend dans la requete la licence, le checksum, le token, la clé temp
 			if (data.length == 4) {
-				final String response = data[2] + ";";
+				final String response = data[2];
 				if (checkData(data)) {
 					return response.concat(actualizeClient(data));
 				} else return response.concat(LICENCE_CONTROL_FAILURE);
@@ -107,50 +64,8 @@ public class LicenceControl {
 				return INVALID_QUERY;
 			}
 		} catch (DAOException e) {
+			e.printStackTrace();
 			return DAO_ERROR + ";" + e.getMessage();
-		}
-	}
-	
-	/**
-	 * Réceptionne une requète de libération de session
-	 * supprime la session en base
-	 * @param query
-	 * @return message de confirmation
-	 */
-	@GET
-	@Path("unregister")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String unregister(@QueryParam("query") String query) {
-		String[] data = query.split(";");
-		try {
-			// On attend dans la requete la licence, le checksum, le token, la clé temp
-			if (data.length == 3) {
-				final String response = data[2] + ";";
-				if (checkData(data)) {
-					return response.concat(unregisterClient(data));
-				} else return response.concat(LICENCE_CONTROL_FAILURE);
-			} else {
-				return INVALID_QUERY;
-			}
-		} catch (DAOException e) {
-			return DAO_ERROR + ";" + e.getMessage();
-		}
-	}
-	
-	/**
-	 * Supprime la session d'un client
-	 * @param data
-	 * @return
-	 * @throws DAOException
-	 */
-	private String unregisterClient(String[] data) throws DAOException {
-		final String licence = data[0];
-		final String oldKey = data[3];
-		DAO dao = new DAOLicences();
-		if (dao.deleteSession(oldKey, licence)) {
-			return UNREGISTERED;
-		} else {
-			return INVALID_QUERY;
 		}
 	}
 	
@@ -164,13 +79,13 @@ public class LicenceControl {
 	private String registerClient(String[] data) throws DAOException {
 		final String licence = data[0];
 		final String temporaryKey = Utils.generateTemporaryKey();
-		DAO dao = new DAOLicences();
+		DAOStub dao = new DAOStub();
 		final int maxUsers = dao.getNbMaxUsers(licence);
 		if (maxUsers > dao.getNbActiveSessions(licence)) {
 			dao.insertTemporaryKey(licence, temporaryKey, Utils.generateExpirationDate());
 			return temporaryKey;
 		} else {
-			return USER_LIMIT_REACHED;
+			throw new DAOException("Max user limit reached for licence : " + licence + ". (User limit : " + maxUsers + ")");
 		}
 	}
 
@@ -181,26 +96,30 @@ public class LicenceControl {
 	 * Si la session existe mais a expiré, supprime cette session puis enregistre le client avec une nouvelle.
 	 * Si la session n'existe pas, la requète est rejetée, il s'agit d'une usurpation.
 	 * @param data
-	 * @return nouvelle clé temporaire, ou message d'erreur
-	 * @throws DAOException 
+	 * @return
 	 */
-	private String actualizeClient(String[] data) throws DAOException {
+	private String actualizeClient(String[] data) {
 		final String licence = data[0];
-		final String oldKey = data[3];
-		DAO dao = new DAOLicences();
-		final SessionState sessionState = dao.sessionExists(licence, oldKey);
-		switch (sessionState) {
-		case ACTIVE : {
-			// La session est active
-			dao.deleteSession(licence, oldKey);
-			final String temporaryKey = Utils.generateTemporaryKey();
-			dao.insertTemporaryKey(licence, temporaryKey, Utils.generateExpirationDate());
-			return temporaryKey;
-		} 
-		// La session a expiré
-		case EXPIRED : return registerClient(data);
-		// La session n'existe pas
-		case NULL : return LICENCE_CONTROL_FAILURE;
+		final String  oldKey = data[3];
+		DAOStub dao = new DAOStub();
+		try {
+			final SessionState sessionState = dao.sessionExists(licence, oldKey);
+			switch (sessionState) {
+			case ACTIVE : {
+				// La session est active
+				dao.deleteSession(licence, oldKey);
+				final String temporaryKey = Utils.generateTemporaryKey();
+				dao.insertTemporaryKey(licence, temporaryKey, Utils.generateExpirationDate());
+				return temporaryKey;
+			} 
+			// La session a expiré
+			case EXPIRED : return registerClient(data);
+			// La session n'existe pas
+			case NULL : return LICENCE_CONTROL_FAILURE;
+			}
+		} catch (DAOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return LICENCE_CONTROL_FAILURE;
 	}
@@ -215,7 +134,7 @@ public class LicenceControl {
 	private boolean checkData(String[] data) throws DAOException {
 		final String licence = data[0];
 		final String checkSum = data[1];
-		DAO dao = new DAOLicences();
+		DAOStub dao = new DAOStub();
 		return dao.validateLicence(licence) && dao.getChecksum(licence).equals(checkSum);
 	}
 }

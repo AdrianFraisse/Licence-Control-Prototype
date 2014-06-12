@@ -9,6 +9,6 @@ public interface DAO {
 	public int getNbMaxUsers(String licence) throws DAOException;
 	public boolean insertTemporaryKey(String licence, String tempKey, Timestamp timestamp) throws DAOException;
 	public int getNbActiveSessions(String licence) throws DAOException;
-	public int sessionExists(String licence, String tempKey) throws DAOException;
+	public SessionState sessionExists(String licence, String tempKey) throws DAOException;
 	public boolean deleteSession(String sessionKey, String licence) throws DAOException;
 }
