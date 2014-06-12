@@ -31,4 +31,16 @@ public class DAOStub implements DAO {
 		return 0;
 	}
 
+	@Override
+	public int sessionExists(String licence, String tempKey) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void removeSession(String licence, String oldKey) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

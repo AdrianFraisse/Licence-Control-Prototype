@@ -15,8 +15,9 @@ import licencecontrol.util.Utils;
 @Path("/licence")
 public class LicenceControl {
 	
-	private static final String SERVER_ERROR = "0";
 	private static final String DAO_ERROR = "1";
+	private static final String INVALID_QUERY = "Invalid Query";
+	private static final String LICENCE_CONTROL_FAILURE = "2";
 	/**
 	 * Réceptionne une requète de première validation de licence 
 	 * (Ouverture d'une session)
@@ -29,18 +30,47 @@ public class LicenceControl {
 	public String check(@QueryParam("query") String query) {
 		String[] data = query.split(";");
 		// Rejet d'une requète présentant un format erronné
-		final String response = data[2] + ";";
 		try {
-			if (data.length == 3 && checkData(data)) {
-				// Premier contrôle : reponse == token et une clé temporaire
-				return response.concat(registerClient(data));
+			if (data.length == 3) {
+				final String response = data[2] + ";";
+				if (checkData(data)) {
+					// Premier contrôle : reponse == token et une clé temporaire
+					return response.concat(registerClient(data));
+				} else return LICENCE_CONTROL_FAILURE;
 			} else {
-				// TODO reponse refus
-				return SERVER_ERROR;
+				// requète invalide
+				return INVALID_QUERY;
 			}
 		} catch (DAOException e) {
 			e.printStackTrace();
-			return DAO_ERROR;
+			return DAO_ERROR + ";" + e.getMessage();
+		}
+	}
+	
+	/**
+	 * Réceptionne une requète de re-contrôle de licence.
+	 * Actualise une session.
+	 * @param query
+	 * @return
+	 */
+	@GET
+	@Path("revalidate")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String revalidate(@QueryParam("query") String query) {
+		String[] data = query.split(";");
+		try {
+			// On attend dans la requete la licence, le checksum, le token, la clé temp
+			if (data.length == 4) {
+				final String response = data[2];
+				if (checkData(data)) {
+					return response.concat(actualizeClient(data));
+				} else return response.concat(LICENCE_CONTROL_FAILURE);
+			} else {
+				return INVALID_QUERY;
+			}
+		} catch (DAOException e) {
+			e.printStackTrace();
+			return DAO_ERROR + ";" + e.getMessage();
 		}
 	}
 	
@@ -63,26 +93,26 @@ public class LicenceControl {
 			throw new DAOException("Max user limit reached for licence : " + licence + ". (User limit : " + maxUsers + ")");
 		}
 	}
-	
+
 	/**
-	 * Réceptionne une requète de re-contrôle de licence.
-	 * Actualise une session.
-	 * @param query
+	 * Actualise la session d'un client.
+	 * Vérifie en base que 
+	 * @param data
 	 * @return
 	 */
-	@GET
-	@Path("revalidate")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String revalidate(@QueryParam("query") String query) {
-		String[] data = query.split(";");
-		if (data.length == 4) {
-			
-			return "0";
-		} else {
-			return "0";
+	private String actualizeClient(String[] data) {
+		final String licence = data[0];
+		final String  oldKey = data[3];
+		final String temporaryKey = Utils.generateTemporaryKey();
+		DAO dao = new DAOLicences();
+		if (dao.sessionExists(licence, oldKey) == 0) {
+			dao.removeSession(licence, oldKey);
+			dao.insertTemporaryKey(licence, temporaryKey, Utils.generateExpirationDate());
+			return temporaryKey;
 		}
+		return LICENCE_CONTROL_FAILURE;
 	}
-	
+
 	/**
 	 * Contrôle l'intégrité du checkSum et la validité de la licence.
 	 * Délégation à la couche DAO des traitements.
