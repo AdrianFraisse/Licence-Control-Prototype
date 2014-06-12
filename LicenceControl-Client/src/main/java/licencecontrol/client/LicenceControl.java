@@ -1,4 +1,4 @@
-package fr.emn.prototype.licenceControl;
+package licencecontrol.client;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,21 +12,29 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 
-public class LicenceControler {
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
+import licencecontrol.util.Crypto;
+
+public class LicenceControl {
 	// Singleton
-	private static LicenceControler licenceControler = new LicenceControler();
+	private static LicenceControl licenceController = new LicenceControl();
 	private final String token;
 	
-	private LicenceControler() {
+	private LicenceControl() {
 		token = generateToken();
 	}
 	
-	public static LicenceControler getInstance() {
-		return licenceControler;
+	public static LicenceControl getInstance() {
+		return licenceController;
 	}
 	
 	public void controlOnServer() throws MalformedURLException, RuntimeException, IOException {
@@ -55,7 +63,21 @@ public class LicenceControler {
 	}
 	
 	public String getData() throws RuntimeException, IOException {
-		return getCheckSum() + ";" + getLicence() + ";" + generateToken();
+		//String data = getCheckSum() + ";" + getLicence() + ";" + generateToken();
+		//String checksum = getCheckSum();
+		String token = generateToken();
+		System.out.println("40d869c6cac79f45dc866393ccd101fe43601d10cd7da4699b832f08b8ee3423");
+		System.out.println(token);
+		String data = "40d869c6cac79f45dc866393ccd101fe43601d10cd7da4699b832f08b8ee3423" + ";" + "licence-proto" + token;
+		
+		try {
+			return Crypto.encryptData(data, Crypto.getPublicKey() );
+		} catch (InvalidKeyException | NoSuchAlgorithmException
+				| NoSuchPaddingException | InvalidKeySpecException
+				| IllegalBlockSizeException | BadPaddingException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	/**
@@ -75,7 +97,7 @@ public class LicenceControler {
         StringBuilder sb = new StringBuilder();
         FileInputStream fis = null;
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");// MD5
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
             fis = new FileInputStream(getPath());
             byte[] dataBytes = new byte[1024];
             int nread = 0;

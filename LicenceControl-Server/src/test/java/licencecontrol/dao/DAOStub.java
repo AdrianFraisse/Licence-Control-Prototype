@@ -42,7 +42,7 @@ public class DAOStub implements DAO {
 	public SessionState sessionExists(String licence, String tempKey)
 			throws DAOException {
 		// TODO Auto-generated method stub
-		return SessionState.ACTIVE;
+		return SessionState.NULL;
 	}
 
 }

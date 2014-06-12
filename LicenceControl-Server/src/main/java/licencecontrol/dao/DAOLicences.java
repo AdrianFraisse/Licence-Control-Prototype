@@ -12,6 +12,7 @@ public class DAOLicences implements DAO {
 	private static final String QUERY_INSERT_TEMPORARY_KEY = "INSERT INTO `session` (`licence`, `session_key`, `expiration_date`) VALUES (?, ?, ?);";
 	private static final String QUERY_NB_SESSIONS_ACTIVES = "SELECT COUNT(`session_key`) AS nb_sessions_actives FROM  `session` WHERE SYSDATE() <  `expiration_date` AND  `licence` = ?";
 	private static final String QUERY_DELETE_SESSION = "DELETE FROM `session` WHERE `session_key`= ? AND `licence` = ?";
+	private static final String QUERY_SESSION_EXISTS = "SELECT `expiration_date` FROM  `session` WHERE  `session_key` = ? AND `licence` = ?";
 	
 	//private static DAOLicence instance;
 	private Connection connection;
@@ -19,19 +20,9 @@ public class DAOLicences implements DAO {
 	public DAOLicences() {
 		connection = ConnectionMySql.getConnection();
 	}
-
-	/*
-	public static DAOLicence instance() {
-		if (instance == null) {
-			instance = new DAOLicence();
-		}
-		return instance;
-	}
-	*/
 	
 	@Override
 	public boolean validateLicence(String licence) throws DAOException {
-		//String sql = "SELECT COUNT(licence) as nb FROM `licences` WHERE `licence`= ?";
 		try {
 			PreparedStatement statement = connection.prepareStatement(QUERY_VALIDATE_LIC);
 			statement.setString(1, licence);
@@ -136,9 +127,28 @@ public class DAOLicences implements DAO {
 	@Override
 	public SessionState sessionExists(String licence, String tempKey)
 			throws DAOException {
-		// TODO Auto-generated method stub
-		return SessionState.EXPIRED;
+		try {
+			PreparedStatement statement = connection.prepareStatement(QUERY_SESSION_EXISTS);
+			statement.setString(1, licence);
+			statement.setString(2, tempKey);
+			ResultSet rs = statement.executeQuery();
+			if(rs.first()) {
+				//expirée ou non ?
+				long expiration_date = rs.getTimestamp("expiration_date").getTime();
+				long now = System.currentTimeMillis();
+				//active
+				if(expiration_date > now) {
+					return SessionState.ACTIVE;
+				}
+				else {
+					return SessionState.EXPIRED;
+				}
+			}
+			else {
+				return SessionState.NULL;
+			}
+		} catch (SQLException e) {
+			throw new DAOException(e.getMessage());
+		}
 	}
-	
-	
 }
