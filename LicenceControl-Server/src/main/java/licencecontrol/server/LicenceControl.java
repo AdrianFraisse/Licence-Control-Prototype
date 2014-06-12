@@ -10,6 +10,7 @@ import licencecontrol.dao.DAO;
 import licencecontrol.dao.DAOException;
 import licencecontrol.dao.DAOLicences;
 import licencecontrol.dao.SessionState;
+import licencecontrol.util.Crypto;
 import licencecontrol.util.Utils;
 
 
@@ -21,6 +22,7 @@ public class LicenceControl {
 	private static final String LICENCE_CONTROL_FAILURE = "2";
 	private static final String USER_LIMIT_REACHED = "3";
 	private static final String UNREGISTERED = "4";
+	private static final String SERVER_ERROR = "0";
 	
 	/**
 	 * Réceptionne une requète de première validation de licence 
@@ -48,6 +50,39 @@ public class LicenceControl {
 		} catch (DAOException e) {
 			return DAO_ERROR + ";" + e.getMessage();
 		}
+	}
+	
+	/**
+	 * Réceptionne une requète de première validation de licence 
+	 * (Ouverture d'une session)
+	 * @param query la requète passée au format texte
+	 * @return la réponse au format texte
+	 */
+	@GET
+	@Path("check")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String check(@QueryParam("query") String query) {
+		try {
+            byte[] bytes = Crypto.decryptData(Utils.stringToByteArray(query), Crypto.getPrivateKey());
+			String  uncipherQuery = new String(bytes);
+            String[] data = uncipherQuery.split(";");
+			if (data.length == 3) {
+				final String response = data[2] + ";";
+				if (checkData(data)) {
+					// Premier contrôle : reponse == token et une clé temporaire
+					return response.concat(registerClient(data));
+				} else return LICENCE_CONTROL_FAILURE;
+			} else {
+				// requète invalide
+				return INVALID_QUERY;
+			}
+		} catch (DAOException e) {
+			e.printStackTrace();
+			return DAO_ERROR + ";" + e.getMessage();
+		} catch (Exception e) {
+			e.printStackTrace();
+            return SERVER_ERROR;
+        }
 	}
 	
 	/**
