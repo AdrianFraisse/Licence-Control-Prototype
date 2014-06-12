@@ -78,6 +78,7 @@ public class LicenceControl {
         		// la réponse contient donc forcément une clé temporaire
         		final String tempKey = response[1];
         		writeTempKey(tempKey);
+        		shutdownHook.setTempKey(tempKey);
         		System.out.println("OK ! Clé temporaire : " + tempKey);
         	}
         	
@@ -225,6 +226,8 @@ public class LicenceControl {
 			licence = stream.readLine();
 			// Todo gerer null
 			stream.close();
+			// on confie la licence au shutdownhook
+			shutdownHook.setLicence(licence);
 		}
 		return licence;
 	}

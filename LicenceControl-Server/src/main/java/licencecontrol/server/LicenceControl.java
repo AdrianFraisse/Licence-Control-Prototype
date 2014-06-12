@@ -40,6 +40,7 @@ public class LicenceControl {
 			byte[] bytes = Crypto.decryptData(Utils.stringToByteArray(query), Crypto.getPrivateKey());
 			String uncipherQuery = new String(bytes);
             String[] data = uncipherQuery.split(";");
+            System.out.println(data[1]);
             // Première vérification
 			if (data.length == 3) {
 				if (checkData(data)) {
@@ -76,7 +77,7 @@ public class LicenceControl {
 		String[] data = query.split(";");
 		try {
 			// On attend dans la requete la licence, le checksum, la clé temp
-			if (data.length == 3) {
+			if (data.length == 2) {
 				if (checkData(data)) {
 					return unregisterClient(data);
 				} else return LICENCE_CONTROL_FAILURE;
@@ -150,7 +151,10 @@ public class LicenceControl {
 			return token + ";" + temporaryKey;
 		} 
 		// La session a expiré
-		case EXPIRED : return registerClient(data);
+		case EXPIRED : {
+			dao.deleteSession(oldKey);
+			return registerClient(data);
+		}
 		// La session n'existe pas
 		case NULL : return LICENCE_CONTROL_FAILURE;
 		}
