@@ -76,7 +76,7 @@ public class LicenceControl {
 		String[] data = query.split(";");
 		try {
 			// On attend dans la requete la licence, le checksum, la clé temp
-			if (data.length == 3) {
+			if (data.length == 2) {
 				if (checkData(data)) {
 					return unregisterClient(data);
 				} else return LICENCE_CONTROL_FAILURE;
