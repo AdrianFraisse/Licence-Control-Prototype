@@ -32,7 +32,7 @@ public class DAOStub implements DAO {
 	}
 
 	@Override
-	public boolean deleteSession(String sessionKey, String licence)
+	public boolean deleteSession(String sessionKey)
 			throws DAOException {
 		// TODO Auto-generated method stub
 		return true;

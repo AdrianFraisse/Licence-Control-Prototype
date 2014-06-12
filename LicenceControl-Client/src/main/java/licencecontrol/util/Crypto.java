@@ -50,11 +50,11 @@ public class Crypto {
 	
 	
 	/**
-	 * Génération d'un token aléatoire sécurisé.
+	 * Génération d'un token aléatoire sécurisé en base 32.
 	 * @return token
 	 */
 	public static String generateToken() {
 		SecureRandom random = new SecureRandom();
-		return new BigInteger(130, random).toString();
+		return new BigInteger(32, random).toString();
 	}
 }

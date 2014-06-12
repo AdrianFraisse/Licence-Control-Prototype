@@ -95,10 +95,9 @@ public class LicenceControl {
 	 * @throws DAOException
 	 */
 	private String unregisterClient(String[] data) throws DAOException {
-		final String licence = data[0];
 		final String oldKey = data[1];
 		DAO dao = new DAOLicences();
-		if (dao.deleteSession(oldKey, licence)) {
+		if (dao.deleteSession(oldKey)) {
 			return UNREGISTERED;
 		} else {
 			return INVALID_QUERY;
@@ -145,7 +144,7 @@ public class LicenceControl {
 		switch (sessionState) {
 		case ACTIVE : {
 			// La session est active
-			dao.deleteSession(licence, oldKey);
+			dao.deleteSession(oldKey);
 			final String temporaryKey = Utils.generateTemporaryKey();
 			dao.insertTemporaryKey(licence, temporaryKey, Utils.generateExpirationDate());
 			return token + ";" + temporaryKey;
