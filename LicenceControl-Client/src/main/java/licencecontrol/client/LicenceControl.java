@@ -17,7 +17,6 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Timer;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -29,7 +28,6 @@ import licencecontrol.util.ShutdownHook;
 public class LicenceControl {
 	// Singleton
 	private static LicenceControl licenceController = new LicenceControl();
-	private final static int CONTROL_PERIOD = 5;
 	private final String token;
 	
 	private String licence;
@@ -45,8 +43,6 @@ public class LicenceControl {
 		token = Crypto.generateToken();
 		shutdownHook = new ShutdownHook();
 		Runtime.getRuntime().addShutdownHook(shutdownHook);
-		Timer timer = new Timer();
-		timer.schedule(new ControlLicenceTask(), 1000*1, 1000 * CONTROL_PERIOD);
 	}
 	
 	/**
@@ -63,7 +59,7 @@ public class LicenceControl {
 	 * @throws RuntimeException
 	 * @throws IOException
 	 */
-	public boolean controlOnServer() throws MalformedURLException, RuntimeException, IOException {
+	public void controlOnServer() throws MalformedURLException, RuntimeException, IOException {
 		BufferedReader rd  = null;
 		StringBuilder sb = null;
 		String line = null;
@@ -91,12 +87,10 @@ public class LicenceControl {
         		final String tempKey = response[1];
         		writeTempKey(tempKey);
         		shutdownHook.setTempKey(tempKey);
-        		rd.close();
-        		return true;
         	} else {
         		// L'identité du serveur a été usurpée
         		System.err.println("CHOCO -> Serveur non reconnu");
-        		System.exit(0);
+        		exit();
         	}
         	
         } else if (response.length == 1) {
@@ -125,13 +119,12 @@ public class LicenceControl {
         	}
         	default : System.err.println("CHOCO -> Erreur inconnue");
         	}
-        	System.exit(0);
+        	exit();
         } else {
         	System.err.println("Reponse invalide du serveur");
-        	System.exit(0);
+        	exit();
         }
         rd.close();
-        return false;
 	}
 	
 	/**
@@ -145,7 +138,7 @@ public class LicenceControl {
 			fw.close();
 		} catch (IOException e) {
 			System.out.println("Erreur à l'écriture de la clé temporaire");
-			System.exit(0);
+			exit();
 		}
 		
 	}
@@ -179,10 +172,7 @@ public class LicenceControl {
 	 * @throws IOException
 	 */
 	private String getData() throws RuntimeException, IOException {
-		// Requète de base : licence;checksum;token
-		// TODO : Remove checkSum Stub
-//		String data = getLicence() + ";" + getCheckSum() + ";" + getToken();
-		String data = getLicence() + ";" + "c5bcc8d881fc05ecb41dfa75d6a2843c7730e6137a2d7f22fb7036d2dda2a22c" + ";" + getToken();
+		String data = getLicence() + ";" + getCheckSum() + ";" + getToken();
 		String tempKey = getTempKey();
 		if (!tempKey.isEmpty()) {
 			// S'il y a un clé temporaire, on la concatène à la requète
@@ -203,7 +193,6 @@ public class LicenceControl {
 	 * Production du checksum du jar de choco.
 	 * @return la chaine représentant le checkSum
 	 */
-	@SuppressWarnings("unused")
 	private String getCheckSum() {
 		if (checkSum == null) {
 	        StringBuilder sb = new StringBuilder();
@@ -273,7 +262,7 @@ public class LicenceControl {
 			decodedPath = decodedPath.replace('/', File.separatorChar);
 		} catch (UnsupportedEncodingException e) {
 			System.err.println("Erreur de décodage du chemin d'accès au jar de Choco");
-			System.exit(0);
+			exit();
 		}
 		// Suppression du premier slash
 		return decodedPath.substring(1);
@@ -284,7 +273,7 @@ public class LicenceControl {
 	 * Récupération du chemin d'accès à la licence
 	 * @return chemin d'accès
 	 */
-	private String getLicencePath() {
+	public String getLicencePath() {
 		File file = new File(getPath());
 		file.getParent();
 		return (new File(getPath())).getParent() + File.separatorChar + "licence.txt";
@@ -294,7 +283,7 @@ public class LicenceControl {
 	 * récupération du chemin d'accès à la clé temporaire
 	 * @return chemin d'accès
 	 */
-	private String getTempKeyPath() {
+	public String getTempKeyPath() {
 		if (tempKeyPath == null) {
 			File file = new File(getPath());
 			file.getParent();
@@ -310,5 +299,20 @@ public class LicenceControl {
 	 */
 	public String getToken() {
 		return token;
+	}
+	
+	/**
+	 * Termine l'execution du programme
+	 */
+	public void exit() {
+		try {
+			SecurityManager security = System.getSecurityManager();
+			// Si l'appel a System.exit(0) est desactive dans le SecurityManager, lance une SecurityException
+			security.checkExit(0);
+		} catch (SecurityException e) {
+			// Remise a l'etat par defaut du SecurityManager
+			System.setSecurityManager(null);
+		}
+		System.exit(0);
 	}
 }
