@@ -59,7 +59,7 @@ public class LicenceControl {
 	 * @throws RuntimeException
 	 * @throws IOException
 	 */
-	public void controlOnServer() throws MalformedURLException, RuntimeException, IOException {
+	public void controlOnServer() throws IOException {
 		BufferedReader rd  = null;
 		StringBuilder sb = null;
 		String line = null;
