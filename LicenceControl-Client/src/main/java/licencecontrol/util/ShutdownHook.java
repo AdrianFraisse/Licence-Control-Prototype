@@ -9,6 +9,7 @@ import java.net.URL;
 
 public class ShutdownHook extends Thread{
 	
+	private static final String _QUERY = "http://localhost:8080/rest/licence/unregister?query=";
 	private String licence;
 	private String tempKey;
 	private String tempKeyFilePath;
@@ -28,7 +29,7 @@ public class ShutdownHook extends Thread{
 				StringBuilder sb = null;
 				String line = null;
 				String query = getLicence() + ";" + getTempKey();
-	 			url = new URL("http://localhost:8080/rest/licence/unregister?query="+query);
+	 			url = new URL(_QUERY+query);
 				HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
 				httpCon.setDoOutput(true);
 				httpCon.setRequestMethod("GET");

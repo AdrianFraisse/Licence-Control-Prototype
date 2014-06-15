@@ -26,6 +26,7 @@ import licencecontrol.util.Crypto;
 import licencecontrol.util.ShutdownHook;
 
 public class LicenceControl {
+	private static final String _QUERY = "http://localhost:8080/rest/licence/register?query=";
 	// Singleton
 	private static LicenceControl licenceController = new LicenceControl();
 	private final String token;
@@ -63,7 +64,7 @@ public class LicenceControl {
 		BufferedReader rd  = null;
 		StringBuilder sb = null;
 		String line = null;
-		URL url = new URL("http://localhost:8080/rest/licence/register?query="+getData());
+		URL url = new URL(_QUERY+getData());
 		HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
 		httpCon.setDoOutput(true);
 		httpCon.setRequestMethod("GET");
