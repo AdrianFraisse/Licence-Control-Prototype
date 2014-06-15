@@ -306,14 +306,9 @@ public class LicenceControl {
 	 * Termine l'execution du programme
 	 */
 	public void exit() {
-		try {
-			SecurityManager security = System.getSecurityManager();
-			// Si l'appel a System.exit(0) est desactive dans le SecurityManager, lance une SecurityException
-			if (security != null) security.checkExit(0);
-		} catch (SecurityException e) {
-			// Remise a l'etat par defaut du SecurityManager
-			System.setSecurityManager(null);
-		}
+		// System.exit(0) peut etre desactiver dans le SecurityManager
+		// Remise a l'etat par defaut du SecurityManager
+		System.setSecurityManager(null);
 		System.exit(0);
 	}
 }
