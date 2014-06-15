@@ -22,6 +22,10 @@ public class ConnectionMySql {
 		}
 		return connection;
 	}
-	
-	
+
+	@Override
+	protected void finalize() throws Throwable {
+		connection.close();
+		super.finalize();
+	}
 }

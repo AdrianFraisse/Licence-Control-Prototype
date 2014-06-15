@@ -53,12 +53,6 @@ public class DAOLicences implements DAO {
 			throw new DAOException(e.getMessage());
 		}
 	}
-	
-	@Override
-	protected void finalize() throws Throwable {
-		connection.close();
-		super.finalize();
-	}
 
 	@Override
 	public int getNbMaxUsers(String licence) throws DAOException {
