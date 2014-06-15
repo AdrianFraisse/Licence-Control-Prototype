@@ -8,7 +8,7 @@ import licencecontrol.client.LicenceControl;
 public class RunClient {
 
 	public static void main(String[] args) throws MalformedURLException, RuntimeException, IOException {
-		LicenceControl.getInstance().controlOnServer();
+		LicenceControl.getInstance();
 		System.in.read();
 		LicenceControl.getInstance().controlOnServer();
 		System.in.read();
