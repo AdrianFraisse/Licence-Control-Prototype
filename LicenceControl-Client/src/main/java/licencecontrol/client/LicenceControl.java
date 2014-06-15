@@ -90,7 +90,7 @@ public class LicenceControl {
         	} else {
         		// L'identité du serveur a été usurpée
         		System.err.println("CHOCO -> Serveur non reconnu");
-        		System.exit(0);
+        		exit();
         	}
         	
         } else if (response.length == 1) {
@@ -119,10 +119,10 @@ public class LicenceControl {
         	}
         	default : System.err.println("CHOCO -> Erreur inconnue");
         	}
-        	System.exit(0);
+        	exit();
         } else {
         	System.err.println("Reponse invalide du serveur");
-        	System.exit(0);
+        	exit();
         }
         rd.close();
 	}
@@ -138,7 +138,7 @@ public class LicenceControl {
 			fw.close();
 		} catch (IOException e) {
 			System.out.println("Erreur à l'écriture de la clé temporaire");
-			System.exit(0);
+			exit();
 		}
 		
 	}
@@ -262,7 +262,7 @@ public class LicenceControl {
 			decodedPath = decodedPath.replace('/', File.separatorChar);
 		} catch (UnsupportedEncodingException e) {
 			System.err.println("Erreur de décodage du chemin d'accès au jar de Choco");
-			System.exit(0);
+			exit();
 		}
 		// Suppression du premier slash
 		return decodedPath.substring(1);
@@ -299,5 +299,20 @@ public class LicenceControl {
 	 */
 	public String getToken() {
 		return token;
+	}
+	
+	/**
+	 * Termine l'execution du programme
+	 */
+	public void exit() {
+		try {
+			SecurityManager security = System.getSecurityManager();
+			// Si l'appel a System.exit(0) est desactive dans le SecurityManager, lance une SecurityException
+			security.checkExit(0);
+		} catch (SecurityException e) {
+			// Remise a l'etat par defaut du SecurityManager
+			System.setSecurityManager(null);
+		}
+		System.exit(0);
 	}
 }
