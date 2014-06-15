@@ -66,7 +66,7 @@ public class LicenceControl {
 	/**
 	 * Réceptionne une requète de libération de session
 	 * supprime la session en base
-	 * @param query
+	 * @param query la requete get
 	 * @return message de confirmation
 	 */
 	@GET

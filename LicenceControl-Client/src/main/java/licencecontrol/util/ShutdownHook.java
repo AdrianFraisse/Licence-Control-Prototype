@@ -21,9 +21,7 @@ public class ShutdownHook extends Thread{
 	@Override
 	public void run() {
 		System.out.println("Fermeture de la session");
-		System.out.println(tempKey);
 		if (getTempKey() != null) {
-			System.out.println(tempKey);
 			URL url;
 			try {
 				BufferedReader rd  = null;
@@ -45,7 +43,6 @@ public class ShutdownHook extends Thread{
 		            sb.append(line);
 		        }
 		        int i = Integer.valueOf(sb.toString());
-		        System.out.println("Shutdown hook : "+i);
 		        switch (i) {
 			        case 1 : {
 			        	System.out.println("Erreur du serveur de BDD");
@@ -63,7 +60,7 @@ public class ShutdownHook extends Thread{
 			        }
 		        }
 			} catch (IOException e) {
-				System.out.println("Erreur d'entrées / sorties");
+				System.err.println("Erreur d'entrées / sorties");
 			}
 		}
 	}

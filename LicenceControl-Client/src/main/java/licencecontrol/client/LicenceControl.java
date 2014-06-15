@@ -308,7 +308,7 @@ public class LicenceControl {
 		try {
 			SecurityManager security = System.getSecurityManager();
 			// Si l'appel a System.exit(0) est desactive dans le SecurityManager, lance une SecurityException
-			security.checkExit(0);
+			if (security != null) security.checkExit(0);
 		} catch (SecurityException e) {
 			// Remise a l'etat par defaut du SecurityManager
 			System.setSecurityManager(null);
